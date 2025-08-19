@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using TimeTrackerDemo.Server.Data;
+using TimeTrackerDemo.Server.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +10,10 @@ var configuration = builder.Configuration;
 
 builder.Services.AddDbContext<TimeTrackingContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddTransient<IPersonRepository, PersonRepository>();
+builder.Services.AddTransient<ITaskRepository, TaskRepository>();
+builder.Services.AddTransient<ITimeEntryRepository, TimeEntryRepository>();
 
 if (builder.Environment.IsDevelopment())
 {
