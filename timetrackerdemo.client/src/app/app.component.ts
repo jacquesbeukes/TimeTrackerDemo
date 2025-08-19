@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
   selector: 'app-root',
   template: `
     <ttd-header />
-    <ttd-summary />
+    <ttd-admin />
   `,
   standalone: false
 })

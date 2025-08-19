@@ -28,7 +28,7 @@ public static class DbInitializer
 
         var tasks = new TrackedTask[]
         {
-            new TrackedTask{Name="Programming,"},
+            new TrackedTask{Name="Programming"},
             new TrackedTask{Name="Testing"},
         };
 

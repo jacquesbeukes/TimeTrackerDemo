@@ -5,7 +5,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AppHeader } from './components/header/HeaderComponent'
-import { AppSummary } from './components/summary/SummaryComponent'
+import { AppAdmin } from './components/admin/AdminComponent'
 
 @NgModule({
   declarations: [
@@ -15,7 +15,7 @@ import { AppSummary } from './components/summary/SummaryComponent'
     BrowserModule,
     AppRoutingModule,
     AppHeader,
-    AppSummary
+    AppAdmin
   ],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent]
