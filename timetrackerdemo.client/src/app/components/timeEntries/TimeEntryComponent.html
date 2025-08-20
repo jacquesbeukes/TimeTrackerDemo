@@ -1,0 +1,7 @@
+<h1>This is the time entry block</h1>
+
+<ul>
+  @for (entry of timeEntries(); track entry.id) {
+  <li>date: {{ entry.date }} time: {{ entry.minutesWorked }}</li>
+  }
+</ul>

@@ -5,6 +5,7 @@ import { Component } from '@angular/core';
   template: `
     <ttd-header />
     <ttd-admin />
+    <ttd-timeentry />
   `,
   standalone: false
 })
