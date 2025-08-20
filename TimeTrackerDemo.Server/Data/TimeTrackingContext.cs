@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TimeTrackerDemo.Server.Models;
+using TimeTrackerDemo.Server.Data.Models;
 
 namespace TimeTrackerDemo.Server.Data;
 

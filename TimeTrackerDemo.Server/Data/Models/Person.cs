@@ -1,4 +1,4 @@
-﻿namespace TimeTrackerDemo.Server.Models;
+﻿namespace TimeTrackerDemo.Server.Data.Models;
 
 public class Person
 {

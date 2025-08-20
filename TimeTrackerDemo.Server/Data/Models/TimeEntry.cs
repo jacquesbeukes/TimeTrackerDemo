@@ -1,4 +1,4 @@
-﻿namespace TimeTrackerDemo.Server.Models;
+﻿namespace TimeTrackerDemo.Server.Data.Models;
 
 public class TimeEntry
 {
@@ -6,8 +6,8 @@ public class TimeEntry
     public Guid PersonId { get; set; }
     public Guid TaskId { get; set; }
 
-    public DateOnly date {  get; set; }
-    public TimeSpan time { get; set; }
+    public DateOnly Date {  get; set; }
+    public int MinutesWorked { get; set; }
 
     public Person Person { get; set; }
     public TrackedTask Task { get; set; }

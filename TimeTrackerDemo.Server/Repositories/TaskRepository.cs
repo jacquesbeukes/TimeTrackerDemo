@@ -1,13 +1,9 @@
-﻿using TimeTrackerDemo.Server.Data;
-using TimeTrackerDemo.Server.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using TimeTrackerDemo.Server.Data;
+using TimeTrackerDemo.Server.Data.DTOs;
+using TimeTrackerDemo.Server.Data.DTOs.Mappers;
 
 namespace TimeTrackerDemo.Server.Repositories;
-
-public interface ITaskRepository : IDisposable
-{
-    IEnumerable<TrackedTask> GetTasks();
-    void Save();
-}
 
 public class TaskRepository : ITaskRepository, IDisposable
 {
@@ -18,14 +14,17 @@ public class TaskRepository : ITaskRepository, IDisposable
         this.context = context;
     }
 
-    public IEnumerable<TrackedTask> GetTasks()
+    public async Task<IEnumerable<TaskDTO>> GetTasks()
     {
-        return context.Tasks;
+        var tasks = await context.Tasks
+            .ToListAsync();
+
+        return tasks.ToDto();
     }
 
-    public void Save()
+    public async Task Save()
     {
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 
     private bool disposed = false;

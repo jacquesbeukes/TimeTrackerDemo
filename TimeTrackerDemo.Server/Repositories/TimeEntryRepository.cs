@@ -1,31 +1,92 @@
-﻿using TimeTrackerDemo.Server.Data;
-using TimeTrackerDemo.Server.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using TimeTrackerDemo.Server.Data;
+using TimeTrackerDemo.Server.Data.DTOs;
+using TimeTrackerDemo.Server.Data.DTOs.Mappers;
 
 namespace TimeTrackerDemo.Server.Repositories;
 
-public interface ITimeEntryRepository : IDisposable
-{
-    IEnumerable<TimeEntry> GetEntries();
-    void Save();
-}
-
 public class TimeEntryRepository : ITimeEntryRepository, IDisposable
 {
-    private TimeTrackingContext context;
+    private readonly TimeTrackingContext context;
 
     public TimeEntryRepository(TimeTrackingContext context)
     {
         this.context = context;
     }
 
-    public IEnumerable<TimeEntry> GetEntries()
+    public async Task<IEnumerable<TimeEntryDTO>> GetEntries()
     {
-        return context.TimeEntries;
+        var timeEntries = await context.TimeEntries
+                .Include(t => t.Person)
+                .Include(t => t.Task)
+                .ToListAsync();
+
+        return timeEntries.ToDto();
     }
 
-    public void Save()
+    public async Task<TimeEntryDTO> GetEntry(Guid id)
     {
-        context.SaveChanges();
+        var timeEntry = await context.TimeEntries
+                .Include(t => t.Person)
+                .Include(t => t.Task)
+                .FirstOrDefaultAsync(t => t.Id == id) ?? throw new NotFoundException($"No TimeEntry found with id {id}");
+        
+        return timeEntry.ToDto();
+    }
+
+    public async Task<Guid> CreateEntry(CreateTimeEntryDTO timeEntryDto)
+    {
+        var timeEntry = timeEntryDto.ToModel();
+        timeEntry.Id = Guid.NewGuid();
+
+        context.TimeEntries.Add(timeEntry);
+        await context.SaveChangesAsync();
+        
+        return timeEntry.Id;
+    }
+
+    public async Task UpdateEntry(UpdateTimeEntryDTO timeEntryDto)
+    {
+        var timeEntry = timeEntryDto.ToModel();
+        context.Entry(timeEntry).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!(await TimeEntryExists(timeEntry.Id)))
+            {
+                throw new NotFoundException($"No TimeEntry found with id {timeEntry.Id}");
+            }
+            else
+            {
+                throw;
+            }
+        }
+    }
+
+    public async Task DeleteEntry(Guid id)
+    {
+        var timeEntry = await context.TimeEntries.FindAsync(id);
+        if (timeEntry == null)
+        {
+            throw new NotFoundException($"No TimeEntry found with id {timeEntry.Id}");
+        }
+
+        context.TimeEntries.Remove(timeEntry);
+        await context.SaveChangesAsync();
+    }
+
+    private async Task<bool> TimeEntryExists(Guid id)
+    {
+        return await context.TimeEntries.AnyAsync(e => e.Id == id);
+    }
+
+    public async Task Save()
+    {
+        await context.SaveChangesAsync();
     }
 
     private bool disposed = false;

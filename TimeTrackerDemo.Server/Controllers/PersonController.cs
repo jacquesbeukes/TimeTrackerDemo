@@ -1,28 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TimeTrackerDemo.Server.Models;
+using TimeTrackerDemo.Server.Data.DTOs;
 using TimeTrackerDemo.Server.Repositories;
 
 namespace TimeTrackerDemo.Server.Controllers;
 
+[Route("api/[controller]")]
 [ApiController]
-[Route("[controller]")]
 public class PersonController : ControllerBase
 {
-    private readonly ILogger<PersonController> _logger;
     private readonly IPersonRepository personRepository;
 
     public PersonController(
-        IPersonRepository personRepository, 
-        ILogger<PersonController> logger)
+        IPersonRepository personRepository)
     {
-        _logger = logger;
         this.personRepository = personRepository;
     }
 
-    [HttpGet(Name = "GetPeople")]
-    public IEnumerable<Person> Get()
+    // GET: api/People
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<PersonDTO>>> GetPeople()
     {
-        return personRepository.GetPeople();
+        var response = await personRepository.GetPeople();
+        return Ok(response);
     }
 
 }
