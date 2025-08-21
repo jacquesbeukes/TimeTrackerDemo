@@ -6,7 +6,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AppHeader } from './components/header/HeaderComponent'
 import { AppAdmin } from './components/admin/AdminComponent'
-import { AppTimeEntry } from './components/timeEntries/TimeEntryComponent' 
+import { AppTimeEntry } from './components/timeEntries/TimeEntryComponent';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap'
+import { TimeEntryForm } from './components/TimeEntryFormComponent'
 
 @NgModule({
   declarations: [
@@ -14,10 +16,12 @@ import { AppTimeEntry } from './components/timeEntries/TimeEntryComponent'
   ],
   imports: [
     BrowserModule,
+    NgbModule,
     AppRoutingModule,
     AppHeader,
     AppAdmin,
-    AppTimeEntry
+    AppTimeEntry,
+    TimeEntryForm,
   ],
   providers: [provideHttpClient()],
   bootstrap: [AppComponent]

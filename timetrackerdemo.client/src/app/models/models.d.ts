@@ -19,3 +19,10 @@ export interface TimeEntry {
   person: Person;
   task: TrackedTask;
 }
+
+export interface CreateTimeEntry {
+  personId: GUID;
+  taskId: GUID;
+  date: string;
+  minutesWorked: int;
+}

@@ -1,7 +1,7 @@
-import { Component, inject } from "@angular/core";
+import { Component, input } from "@angular/core";
 
 import { TimeTrackerService } from "../../services/TimeTrackerService"
-import { toSignal } from "@angular/core/rxjs-interop";
+import { Person, TrackedTask } from "../../models/models";
 
 @Component({
   selector: 'ttd-admin',
@@ -10,9 +10,6 @@ import { toSignal } from "@angular/core/rxjs-interop";
 })
 
 export class AppAdmin {
-
-  private service = inject(TimeTrackerService);
-  public people = toSignal(this.service.getPeople(), { initialValue: [] });
-  public tasks = toSignal(this.service.getTasks(), { initialValue: [] });
-
+  people = input<Person[]>([]);
+  tasks = input<TrackedTask[]>([]);
 }

@@ -1,7 +1,7 @@
-import { Component, inject } from "@angular/core";
+import { Component, input } from "@angular/core";
 
 import { TimeTrackerService } from "../../services/TimeTrackerService"
-import { toSignal } from "@angular/core/rxjs-interop";
+import { TimeEntry } from "../../models/models";
 
 @Component({
   selector: 'ttd-timeentry',
@@ -10,8 +10,5 @@ import { toSignal } from "@angular/core/rxjs-interop";
 })
 
 export class AppTimeEntry {
-
-  private service = inject(TimeTrackerService);
-  public timeEntries = toSignal(this.service.getTimeEntries(), { initialValue: [] });
-
+  timeEntries = input<TimeEntry[]>([]);
 }
