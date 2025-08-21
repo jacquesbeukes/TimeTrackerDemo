@@ -27,4 +27,11 @@ export class TimeTrackerService {
       console.log("created entry");
     });
   }
+
+  deleteTimeEntry(timeEntry: TimeEntry) {
+    this.http.delete<void>(`/api/timeentry/${timeEntry.id}`)
+      .subscribe(response => {
+        console.log("deleted entry");
+    });
+  }
 }

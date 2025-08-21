@@ -1,7 +1,29 @@
-<h1>This is the time entry block</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Date</th>
+      <th scope="col">Person</th>
+      <th scope="col">Task</th>
+      <th scope="col">Time (minutes)</th>
+      <!--<th scope="col"></th>-->
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (entry of timeEntries(); track entry.id) {
+    <tr>
+      <td>{{ entry.date }}</td>
+      <td>{{ entry.person.fullName }}</td>
+      <td>{{ entry.task.name }}</td>
+      <td>{{ entry.minutesWorked }}</td>
+      <!--<td>
+        <button class="btn btn-info btn-sm" type="button" (click)="openModal(entry)">Edit</button>
+      </td>-->
+      <td>
+        <button class="btn btn-danger btn-sm" type="button" (click)="deleteEntry(entry)">Delete</button>
+      </td>
+    </tr>
+    }
+  </tbody>
+</table>
 
-<ul>
-  @for (entry of timeEntries(); track entry.id) {
-  <li>date: {{ entry.date }} time: {{ entry.minutesWorked }}</li>
-  }
-</ul>

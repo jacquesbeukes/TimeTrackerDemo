@@ -1,13 +1,20 @@
-import { Component, EventEmitter, input, Output,  } from "@angular/core";
-import { NgbTimepickerModule, NgbAlertModule, NgbDatepickerModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { Component, input, inject  } from "@angular/core";
+import { NgbTimepickerModule, NgbAlertModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { FormGroup, FormControl } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
-import { CreateTimeEntry, Person, TrackedTask } from "../models/models";
+import { CreateTimeEntry, Person, TimeEntry, TrackedTask } from "../models/models";
 
 @Component({
   selector: 'tts-timeentry-form',
   template: `
+  <div class="modal-header">
+			<h4 class="modal-title">Hi there!</h4>
+			<button type="button" class="btn-close" aria-label="Close" (click)="activeModal.dismiss('Cross click')"></button>
+		</div>
+		<div class="modal-body">
+
     <form [formGroup]="profileForm" (ngSubmit)="handleSubmit()">
       <div class="mb-3">
         <label for="person" class="form-label">Person</label>
@@ -46,9 +53,12 @@ import { CreateTimeEntry, Person, TrackedTask } from "../models/models";
         <label for="time" class="form-label">Time</label>
         <ngb-timepicker formControlName="time" />
       </div>
-     
-      <button class="btn btn-primary" type="submit">Submit</button>
     </form>
+
+    </div>
+		<div class="modal-footer">
+			<button class="btn btn-primary" type="submit" (click)="handleSubmit()" >Submit</button>
+		</div>
   `,
   imports: [ReactiveFormsModule, NgbTimepickerModule, NgbAlertModule, NgbDatepickerModule],
 })
@@ -56,7 +66,7 @@ export class TimeEntryForm {
   people = input<Person[]>([]);
   tasks = input<TrackedTask[]>([]);
 
-  @Output() submitEvent = new EventEmitter<CreateTimeEntry>();
+  activeModal = inject(NgbActiveModal);
 
   profileForm = new FormGroup({
     personId: new FormControl(''),
@@ -68,9 +78,7 @@ export class TimeEntryForm {
   handleSubmit() {
     const rawMinutes = this.profileForm.value.time;
     const minutes = (rawMinutes?.hour! * 60) + rawMinutes?.minute!;
-
     const day = this.formatDate(this.profileForm.value.date);
-    alert("day:" + day);
     const result: CreateTimeEntry = {
       personId: this.profileForm.value.personId!,
       taskId: this.profileForm.value.taskId!,
@@ -78,10 +86,10 @@ export class TimeEntryForm {
       minutesWorked: minutes
     };
 
-    this.submitEvent.emit(result);
+    this.activeModal.close(result);
   }
 
-  formatDate = (d: NgbDateStruct) => {
+  formatDate = (d : any) => {
     var month = (d.month + 1).toString();
     var day = d.day.toString();
     var year = d.year.toString();

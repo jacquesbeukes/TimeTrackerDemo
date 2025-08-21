@@ -62,8 +62,6 @@ public class TimeEntryController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<TimeEntry>> PostTimeEntry(CreateTimeEntryDTO timeEntryDto)
     {
-        
-
         try
         {
             var newEntryId = await timeEntryRepository.CreateEntry(timeEntryDto);
