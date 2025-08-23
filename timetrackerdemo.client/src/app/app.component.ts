@@ -36,22 +36,26 @@ import { TimeEntryForm } from './components/TimeEntryFormComponent';
 export class AppComponent{
   active = signal(1);
 
-  people: Signal<Person[]>;
-  tasks: Signal<TrackedTask[]>;
-  timeEntries: Signal<TimeEntry[]>;
+  people = signal<Person[]>([]);
+  tasks = signal<TrackedTask[]>([]);
+  timeEntries = signal<TimeEntry[]>([]);
 
   constructor(private service: TimeTrackerService) {
-    this.people = toSignal(service.getPeople(), { initialValue: [] });
-    this.tasks = toSignal(service.getTasks(), { initialValue: [] });
-    this.timeEntries = toSignal(this.service.getTimeEntries(), { initialValue: [] });
+    service.getPeople().subscribe((response) => this.people.set(response));
+    service.getTasks().subscribe((response) => this.tasks.set(response));
+    service.getTimeEntries().subscribe((response) => this.timeEntries.set(response));
   }
 
   createTaskEntry(entry: CreateTimeEntry) {
-    this.service.postTimeEntry(entry);
+    this.service.postTimeEntry(entry).subscribe((response) =>
+      this.timeEntries.update(entries => [...entries, response]));
   }
   
   deleteTaskEntry(entry: TimeEntry) {
-    this.service.deleteTimeEntry(entry);
+    this.service.deleteTimeEntry(entry).subscribe(() =>
+      this.timeEntries.update(currentEntries =>
+        currentEntries.filter(e => e.id !== entry.id))
+    );
   }
 
   private modalService = inject(NgbModal);
@@ -62,7 +66,7 @@ export class AppComponent{
     modalRef.componentInstance.tasks = this.tasks;
     modalRef.result.then(
       (result) => {
-        this.service.postTimeEntry(result);
+        this.createTaskEntry(result);;
       }  
     );
   }

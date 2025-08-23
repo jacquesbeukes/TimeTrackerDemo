@@ -22,16 +22,11 @@ export class TimeTrackerService {
     return this.http.get<TimeEntry[]>('/api/timeentry');
   }
 
-  postTimeEntry(timeEntry: CreateTimeEntry) {
-    this.http.post<CreateTimeEntry>('/api/timeentry', timeEntry).subscribe(entry => {
-      console.log("created entry");
-    });
+  postTimeEntry(timeEntry: CreateTimeEntry): Observable<TimeEntry> {
+    return this.http.post<TimeEntry>('/api/timeentry', timeEntry);
   }
 
-  deleteTimeEntry(timeEntry: TimeEntry) {
-    this.http.delete<void>(`/api/timeentry/${timeEntry.id}`)
-      .subscribe(response => {
-        console.log("deleted entry");
-    });
+  deleteTimeEntry(timeEntry: TimeEntry): Observable<void> {
+    return this.http.delete<void>(`/api/timeentry/${timeEntry.id}`);
   }
 }
