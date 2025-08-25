@@ -1,9 +1,9 @@
-import { Component, inject, signal, Signal } from '@angular/core';
-import { TimeTrackerService } from './services/TimeTrackerService';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, inject, signal } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { CreateTimeEntry, Person, TimeEntry, TrackedTask } from './models/models';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TimeEntryForm } from './components/TimeEntryFormComponent';
+import { apiActions, selectPeople, selectTasks, selectTimeEntries } from './data/try.ngrx';
 
 @Component({
   selector: 'app-root',
@@ -13,13 +13,13 @@ import { TimeEntryForm } from './components/TimeEntryFormComponent';
 	      <li [ngbNavItem]="1">
 		      <button ngbNavLink>Time Entries</button>
 		      <ng-template ngbNavContent>
-            <ttd-timeentry [timeEntries]="timeEntries()" (deleteEvent)="deleteTaskEntry($event)" (open)="openEdit($event)" />
+            <ttd-timeentry (open)="openEdit($event)" />
 		      </ng-template>
 	      </li>
 	      <li [ngbNavItem]="2">
 		      <button ngbNavLink>Admin Data</button>
 		      <ng-template ngbNavContent>
-  		      <ttd-admin [people]="people()" [tasks]="tasks()" />
+  		      <ttd-admin />
 		      </ng-template>
 	      </li>
 	      <li >
@@ -33,47 +33,23 @@ import { TimeEntryForm } from './components/TimeEntryFormComponent';
   `,
   standalone: false
 })
-export class AppComponent{
+export class AppComponent {
   active = signal(1);
 
-  people = signal<Person[]>([]);
-  tasks = signal<TrackedTask[]>([]);
-  timeEntries = signal<TimeEntry[]>([]);
-
-  constructor(private service: TimeTrackerService) {
-    service.getPeople().subscribe((response) => this.people.set(response));
-    service.getTasks().subscribe((response) => this.tasks.set(response));
-    service.getTimeEntries().subscribe((response) => this.timeEntries.set(response));
+  constructor(private store: Store) {
+    this.store.dispatch(apiActions.loadInitialData());
   }
 
   createTaskEntry(entry: CreateTimeEntry) {
-    this.service.postTimeEntry(entry).subscribe((response) =>
-      this.timeEntries.update(entries => [...entries, response]));
-  }
-  
-  deleteTaskEntry(entry: TimeEntry) {
-    this.service.deleteTimeEntry(entry).subscribe(() =>
-      this.timeEntries.update(currentEntries =>
-        currentEntries.filter(e => e.id !== entry.id))
-    );
+    this.store.dispatch(apiActions.createEntry({ entry: entry }));
   }
 
   private modalService = inject(NgbModal);
 
   open() {
     const modalRef = this.modalService.open(TimeEntryForm)
-    modalRef.componentInstance.people = this.people;
-    modalRef.componentInstance.tasks = this.tasks;
-    modalRef.result.then(
-      (result) => {
-        this.createTaskEntry(result);;
-      }  
-    );
   }
 
-  openEdit(entry: TimeEntry) {
-    const modalRef = this.modalService.open(TimeEntryForm);
-    modalRef.componentInstance.people = this.people;
-    modalRef.componentInstance.tasks = this.tasks;    
+  openEdit(entry: TimeEntry) {   
   }
 }

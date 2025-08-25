@@ -18,8 +18,8 @@ export class TimeTrackerService {
     return this.http.get<TrackedTask[]>('/api/task');
   }
 
-  getTimeEntries(): Observable<TimeEntry[]> {
-    return this.http.get<TimeEntry[]>('/api/timeentry');
+  getTimeEntries(): Observable<Array<TimeEntry>> {
+    return this.http.get<Array<TimeEntry>>('/api/timeentry');
   }
 
   postTimeEntry(timeEntry: CreateTimeEntry): Observable<TimeEntry> {

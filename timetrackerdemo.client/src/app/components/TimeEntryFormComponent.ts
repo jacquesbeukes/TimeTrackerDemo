@@ -1,10 +1,14 @@
-import { Component, input, inject  } from "@angular/core";
+import { Component, inject  } from "@angular/core";
 import { NgbTimepickerModule, NgbAlertModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { AsyncPipe } from "@angular/common";
+
 
 import { FormGroup, FormControl } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
-import { CreateTimeEntry, Person, TimeEntry, TrackedTask } from "../models/models";
+import { CreateTimeEntry } from "../models/models";
+import { Store } from "@ngrx/store";
+import { apiActions, selectPeople, selectTasks } from "../data/try.ngrx";
 
 @Component({
   selector: 'tts-timeentry-form',
@@ -19,7 +23,7 @@ import { CreateTimeEntry, Person, TimeEntry, TrackedTask } from "../models/model
       <div class="mb-3">
         <label for="person" class="form-label">Person</label>
         <select id="person" class="form-select" formControlName="personId">
-        @for (person of people(); track person) {
+        @for (person of (people$ | async); track person.id) {
           <option value="{{ person.id }}">{{ person.fullName }}</option>
         }
         </select>
@@ -28,7 +32,7 @@ import { CreateTimeEntry, Person, TimeEntry, TrackedTask } from "../models/model
       <div class="mb-3">
         <label for="task" class="form-label">Task</label>
         <select id="task" class="form-select" formControlName="taskId">
-        @for (task of tasks(); track task) {
+        @for (task of (tasks$ | async); track task.id) {
           <option value="{{ task.id }}">{{ task.name }}</option>
         }
         </select>
@@ -60,11 +64,12 @@ import { CreateTimeEntry, Person, TimeEntry, TrackedTask } from "../models/model
 			<button class="btn btn-primary" type="submit" (click)="handleSubmit()" >Submit</button>
 		</div>
   `,
-  imports: [ReactiveFormsModule, NgbTimepickerModule, NgbAlertModule, NgbDatepickerModule],
+  imports: [ReactiveFormsModule, NgbTimepickerModule, NgbAlertModule, NgbDatepickerModule, AsyncPipe],
 })
 export class TimeEntryForm {
-  people = input<Person[]>([]);
-  tasks = input<TrackedTask[]>([]);
+  store = inject(Store);
+  people$ = this.store.select(selectPeople);
+  tasks$ = this.store.select(selectTasks);
 
   activeModal = inject(NgbActiveModal);
 
@@ -86,6 +91,7 @@ export class TimeEntryForm {
       minutesWorked: minutes
     };
 
+    this.store.dispatch(apiActions.createEntry({ entry: result }));
     this.activeModal.close(result);
   }
 
