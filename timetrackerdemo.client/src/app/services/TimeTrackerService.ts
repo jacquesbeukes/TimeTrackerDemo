@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Person, TrackedTask, TimeEntry, CreateTimeEntry } from '../models/models';
+import { Person, TrackedTask, TimeEntry, CreateTimeEntry, UpdateTimeEntry } from '../models/models';
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +24,10 @@ export class TimeTrackerService {
 
   postTimeEntry(timeEntry: CreateTimeEntry): Observable<TimeEntry> {
     return this.http.post<TimeEntry>('/api/timeentry', timeEntry);
+  }
+
+  updateTimeEntry(timeEntry: UpdateTimeEntry): Observable<void> {
+    return this.http.put<void>(`/api/timeentry/${timeEntry.id}`, timeEntry);
   }
 
   deleteTimeEntry(timeEntry: TimeEntry): Observable<void> {

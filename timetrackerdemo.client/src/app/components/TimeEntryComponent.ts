@@ -1,10 +1,10 @@
-import { Component, EventEmitter, inject, Output } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { AsyncPipe } from "@angular/common";
 
 import { TimeTrackerService } from "../services/TimeTrackerService"
 import { TimeEntry } from "../models/models";
 import { Store } from "@ngrx/store";
-import { apiActions, selectTimeEntries } from "../data/try.ngrx";
+import { actions, apiActions, selectTimeEntries } from "../data/try.ngrx";
 
 @Component({
   selector: 'ttd-timeentry',
@@ -16,7 +16,7 @@ import { apiActions, selectTimeEntries } from "../data/try.ngrx";
           <th scope="col">Person</th>
           <th scope="col">Task</th>
           <th scope="col">Time (minutes)</th>
-          <!--<th scope="col"></th>-->
+          <th scope="col"></th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -27,9 +27,9 @@ import { apiActions, selectTimeEntries } from "../data/try.ngrx";
           <td>{{ entry.person.fullName }}</td>
           <td>{{ entry.task.name }}</td>
           <td>{{ entry.minutesWorked }}</td>
-          <!--<td>
+          <td>
             <button class="btn btn-info btn-sm" type="button" (click)="openModal(entry)">Edit</button>
-          </td>-->
+          </td>
           <td>
             <button class="btn btn-danger btn-sm" type="button" (click)="deleteEntry(entry)">Delete</button>
           </td>
@@ -46,13 +46,11 @@ export class AppTimeEntry {
   store = inject(Store);
   timeEntryList$ = this.store.select(selectTimeEntries);
 
-  @Output() open = new EventEmitter<TimeEntry>();
-
   deleteEntry(entry: TimeEntry): void {
     this.store.dispatch(apiActions.deleteEntry({ entry: entry }));
   }
 
   openModal(entry: TimeEntry): void {
-    this.open.emit(entry);
+    this.store.dispatch(actions.updateEntry({ entryId: entry.id }));
   }
 }

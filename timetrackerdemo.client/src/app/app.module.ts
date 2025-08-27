@@ -6,9 +6,9 @@ import { AppComponent } from './app.component';
 import { AppAdmin } from './components/AdminComponent'
 import { AppTimeEntry } from './components/TimeEntryComponent';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap'
-import { TimeEntryForm } from './components/TimeEntryFormComponent';
+import { TimeEntryForm } from './components/TimeEntryModal/TimeEntryForm';
 import { StoreModule } from '@ngrx/store'
-import { TimeEntryEffects, timeEntryReducer, readonlyReducer } from './data/try.ngrx';
+import { TimeEntryEffects, timeEntryReducer, readonlyReducer, appReducer } from './data/try.ngrx';
 import { EffectsModule } from '@ngrx/effects';
 
 @NgModule({
@@ -21,7 +21,7 @@ import { EffectsModule } from '@ngrx/effects';
     AppAdmin,
     AppTimeEntry,
     TimeEntryForm,
-    StoreModule.forRoot({ entries: timeEntryReducer, readonly: readonlyReducer }),
+    StoreModule.forRoot({ entries: timeEntryReducer, readonly: readonlyReducer, app: appReducer }),
     EffectsModule.forRoot([
       TimeEntryEffects,
     ]),

@@ -26,3 +26,11 @@ export interface CreateTimeEntry {
   date: string;
   minutesWorked: int;
 }
+
+export interface UpdateTimeEntry {
+  id: GUID;
+  personId: GUID;
+  taskId: GUID;
+  date: string;
+  minutesWorked: int;
+}

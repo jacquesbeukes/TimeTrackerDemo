@@ -1,9 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { CreateTimeEntry, Person, TimeEntry, TrackedTask } from './models/models';
+import { CreateTimeEntry } from './models/models';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TimeEntryForm } from './components/TimeEntryFormComponent';
-import { apiActions, selectPeople, selectTasks, selectTimeEntries } from './data/try.ngrx';
+import { actions, apiActions } from './data/try.ngrx';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +12,7 @@ import { apiActions, selectPeople, selectTasks, selectTimeEntries } from './data
 	      <li [ngbNavItem]="1">
 		      <button ngbNavLink>Time Entries</button>
 		      <ng-template ngbNavContent>
-            <ttd-timeentry (open)="openEdit($event)" />
+            <ttd-timeentry />
 		      </ng-template>
 	      </li>
 	      <li [ngbNavItem]="2">
@@ -47,9 +46,6 @@ export class AppComponent {
   private modalService = inject(NgbModal);
 
   open() {
-    const modalRef = this.modalService.open(TimeEntryForm)
-  }
-
-  openEdit(entry: TimeEntry) {   
+    this.store.dispatch(actions.createEntry());
   }
 }

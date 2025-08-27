@@ -1,12 +1,15 @@
 import { createAction, props, emptyProps } from '@ngrx/store';
 import { createReducer, on } from '@ngrx/store';
 import { createSelector, createFeatureSelector } from '@ngrx/store';
-import { CreateTimeEntry, Person, TimeEntry, TrackedTask } from '../models/models';
+import { CreateTimeEntry, GUID, Person, TimeEntry, TrackedTask, UpdateTimeEntry } from '../models/models';
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { TimeTrackerService } from '../services/TimeTrackerService';
-import { catchError, exhaustMap, map } from 'rxjs/operators';
+import { catchError, exhaustMap, map, tap } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
+import { EditEntryComponent } from '../components/TimeEntryModal/EditEntry';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CreateEntryComponent } from '../components/TimeEntryModal/CreateEntry';
 
 export const apiActions = {
   loadInitialData: createAction('[TimeEntry API] Load Initial Data', emptyProps),
@@ -26,10 +29,19 @@ export const apiActions = {
   deleteEntry: createAction('[TimeEntry API] Delete',
     props<{ entry: TimeEntry }>()),
 
+  updateEntry: createAction('[TimeEntry API] Update',
+    props<{ entry: UpdateTimeEntry }>()),
+
   createEntry: createAction('[TimeEntry API] Create',
     props<{ entry: CreateTimeEntry }>()),
   createEntrySuccess: createAction('[TimeEntry API] Create Success',
     props<{ entry: TimeEntry }>()),
+};
+
+export const actions = {
+  updateEntry: createAction('[TimeEntry List] Edit entry',
+    props<{ entryId: GUID }>()),
+  createEntry: createAction('[TimeEntry List] Create entry', emptyProps),
 };
 
 export const initialTimeEntryState: Array<TimeEntry> = [];
@@ -46,7 +58,7 @@ export const timeEntryReducer = createReducer(
 export interface ReadonlyState {
   people: Array<Person>;
   tasks: Array<TrackedTask>;
-}
+};
 
 export const initialReadonlyState: ReadonlyState = {
   people: [],
@@ -63,8 +75,24 @@ export const readonlyReducer = createReducer(
   }),
 );
 
+export interface AppState {
+  entryToEdit: GUID;
+};
+
+export const initialState: AppState = {
+  entryToEdit: ''
+};
+
+export const appReducer = createReducer(
+  initialState,
+  on(actions.updateEntry, (_state, { entryId }) => {
+    return { ..._state, entryToEdit: entryId };
+  }),
+);
+
 export const selectTimeEntries = createFeatureSelector<Array<TimeEntry>>('entries');
 export const selectReadonlyData = createFeatureSelector<ReadonlyState>('readonly');
+export const selectAppState = createFeatureSelector<AppState>('app');
 
 export const selectPeople = createSelector(
   selectReadonlyData,
@@ -80,10 +108,24 @@ export const selectTasks = createSelector(
   }
 );
 
+export const selectEntryToEditId = createSelector(
+  selectAppState,
+  (app) => {
+    return app.entryToEdit;
+  }
+)
+
+export const selectEntryToEdit = createSelector(
+    selectEntryToEditId,
+    selectTimeEntries,
+    (entryId, entries) => entries.find(entry => entry.id === entryId)
+  );
+
 @Injectable()
 export class TimeEntryEffects {
   private actions$ = inject(Actions);
   private timeTrackerService = inject(TimeTrackerService);
+  private modalService = inject(NgbModal);
 
   loadTasks$ = createEffect(() => {
     return this.actions$.pipe(
@@ -129,6 +171,17 @@ export class TimeEntryEffects {
     );
   });
 
+  updateTimeEntry$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(apiActions.updateEntry.type),
+      exhaustMap((action) =>
+        this.timeTrackerService.updateTimeEntry(action.entry).pipe(
+          map(() => apiActions.loadAllEntries()),
+          catchError(() => EMPTY)
+        ))
+    );
+  });
+
   createTimeEntry$ = createEffect(() => {
     return this.actions$.pipe(
       ofType(apiActions.createEntry.type),
@@ -139,4 +192,18 @@ export class TimeEntryEffects {
         ))
     );
   });
+
+  openEditModal$ = createEffect(
+    () => this.actions$.pipe(
+      ofType(actions.updateEntry.type),
+      tap(() => this.modalService.open(EditEntryComponent))
+    ),
+    { dispatch: false });
+
+  openCreateModal$ = createEffect(
+    () => this.actions$.pipe(
+      ofType(actions.createEntry.type),
+      tap(() => this.modalService.open(CreateEntryComponent))
+    ),
+    { dispatch: false });
 }
