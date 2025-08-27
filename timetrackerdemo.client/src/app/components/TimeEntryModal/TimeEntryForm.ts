@@ -115,10 +115,22 @@ export class TimeEntryForm implements OnInit {
 
   timeValidator: ValidatorFn = (
       control: AbstractControl,
-    ): ValidationErrors | null => {
+  ): ValidationErrors | null => {
 
-    const hours = parseInt(control.get('hours')?.value);
-    const minutes = parseInt(control.get('minutes')?.value);
+    var hours = parseInt(control.get('hours')?.value);
+    var minutes = parseInt(control.get('minutes')?.value);
+
+    if (minutes > 59) {
+      let mod = minutes % 60;
+      let extra = (minutes - mod) / 60;
+
+      control.get('minutes')?.setValue(mod);
+      control.get('hours')?.setValue(hours + extra);
+
+      hours = parseInt(control.get('hours')?.value);
+      minutes = parseInt(control.get('minutes')?.value);
+    }
+
     const totalMinutes = timeInMinutesTotal(hours, minutes);
 
     if (totalMinutes === 0) {
